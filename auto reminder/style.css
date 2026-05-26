@@ -1,0 +1,35 @@
+body{
+    font-family: Arial;
+    background: #111;
+    color: white;
+    display: flex;
+    justify-content: center;
+    padding-top: 50px;
+}
+.constainer{
+    width: 400px;
+}
+input,button{
+    width: 100%;
+    margin-top: 10px;
+    padding: 10px;
+    outline: none;
+    border: none;
+    color: aqua;
+}
+.reminder{
+    background: #222;
+    padding: 10px;
+    margin-top: 10px;
+}
+button{
+    background-color: blue;
+    color: aliceblue;
+}
+button:hover{
+border: 1px solid blue;
+cursor: pointer;
+    background-color: aliceblue;
+color: blue;
+transition: all 0.7s;
+}

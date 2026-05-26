@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+
+
+  <meta charset="UTF-8">
+
+  <!-- Telefonlarda responsive ishlashi uchun -->
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+  <title>Reminder App</title>
+
+
+  
+  <style>
+
+    /* Butun page style */
+    body{
+      background:#111;
+      color:white;
+      font-family:Arial;
+
+      display:flex;
+      justify-content:center;
+
+      padding-top:50px;
+    }
+
+    /* Asosiy container */
+    .container{
+      width:400px;
+    }
+
+    /* Input va button style */
+    input,button{
+      width:100%;
+      padding:12px;
+      margin-top:10px;
+
+      border:none;
+      border-radius:10px;
+
+      font-size:16px;
+    }
+
+    /* Button style */
+    button{
+      background:#00b894;
+      color:white;
+      cursor:pointer;
+    }
+
+    /* Reminder card */
+    .reminder{
+      background:#222;
+
+      padding:15px;
+
+      margin-top:10px;
+
+      border-radius:10px;
+    }
+
+  </style>
+</head>
+
+<body>
+
+  <div class="container">
+
+    <!-- Sarlavha -->
+    <h1>⏰ Reminder App</h1>
+
+    <!-- User task yozadi -->
+    <input
+      type="text"
+      id="taskInput"
+      placeholder="Masalan: 10 ta push up qiling"
+    >
+
+    <!-- Sana va vaqt -->
+    <input
+      type="datetime-local"
+      id="timeInput"
+    >
+
+    <!-- Reminder qo‘shish button -->
+    <button id="addBtn">
+      Add Reminder
+    </button>
+
+    <!-- Reminderlar chiqadigan joy -->
+    <div id="list"></div>
+
+  </div>
+
+  <script>
+
+    /*
+      HTML elementlarni ushlab olyapmiz
+    */
+
+    const addBtn =
+      document.getElementById("addBtn");
+
+    const taskInput =
+      document.getElementById("taskInput");
+
+    const timeInput =
+      document.getElementById("timeInput");
+
+    const list =
+      document.getElementById("list");
+
+
+
+    /*
+      Reminderlarni saqlaydigan array
+    */
+
+    let reminders = [];
+
+
+
+    /*
+      Browser notification permission
+    */
+
+    Notification.requestPermission();
+
+
+
+    /*
+      LocalStorage'dan oldingi data'larni olish
+    */
+
+    const saved =
+      localStorage.getItem("reminders");
+
+
+
+    /*
+      Agar oldin save qilingan data bo‘lsa
+      uni yana arrayga aylantiramiz
+    */
+
+    if(saved){
+
+      reminders = JSON.parse(saved);
+
+      renderReminders();
+
+    }
+
+
+
+    /*
+      Add Reminder button click
+    */
+
+    addBtn.addEventListener("click", () => {
+
+      /*
+        Input ichidagi text
+      */
+
+      const task = taskInput.value;
+
+
+
+      /*
+        Date va time
+      */
+
+      const time = timeInput.value;
+
+
+
+      /*
+        Agar input bo‘sh bo‘lsa
+      */
+
+      if(task === "" || time === ""){
+
+        alert("Inputlarni to‘ldiring");
+
+        return;
+      }
+
+
+
+      /*
+        Reminder object
+      */
+
+      const reminder = {
+
+        task: task,
+
+        time: time
+
+      };
+
+
+
+      /*
+        Array ichiga qo‘shish
+      */
+
+      reminders.push(reminder);
+
+
+
+      /*
+        LocalStorage'ga save qilish
+      */
+
+      localStorage.setItem(
+        "reminders",
+        JSON.stringify(reminders)
+      );
+
+
+
+      /*
+        UI'ni yangilash
+      */
+
+      renderReminders();
+
+
+
+      /*
+        Inputlarni tozalash
+      */
+
+      taskInput.value = "";
+
+      timeInput.value = "";
+
+    });
+
+
+
+    /*
+      Reminderlarni ekranga chiqarish
+    */
+
+    function renderReminders(){
+
+      /*
+        Oldingi HTML'ni tozalash
+      */
+
+      list.innerHTML = "";
+
+
+
+      /*
+        Har bir reminder uchun loop
+      */
+
+      reminders.forEach((reminder) => {
+
+        /*
+          Yangi div yaratish
+        */
+
+        const div =
+          document.createElement("div");
+
+
+
+        /*
+          CSS class qo‘shish
+        */
+
+        div.className = "reminder";
+
+
+
+        /*
+          HTML qo‘shish
+        */
+
+        div.innerHTML = 
+
+         `<h3>${reminder.task}</h3>
+
+          <p>${reminder.time}</p>`
+
+        ;
+
+
+
+        /*
+          Page'ga qo‘shish
+        */
+
+        list.appendChild(div);
+
+      });
+
+    }
+
+
+
+    /*
+      Har sekund reminderlarni tekshirish
+    */
+
+    setInterval(() => {
+
+      /*
+        Hozirgi vaqt
+      */
+
+      const now = new Date();
+
+      /*
+        Har bir reminder tekshiriladi
+      */
+
+      reminders.forEach((reminder) => {
+
+        /*
+          Reminder vaqtini date formatga aylantirish
+        */
+
+        const reminderTime =
+          new Date(reminder.time);
+
+
+
+        /*
+          Vaqt tengligini tekshirish
+        */
+
+        if(
+
+          now.getFullYear() === reminderTime.getFullYear()
+
+          &&
+
+          now.getMonth() === reminderTime.getMonth()
+
+          &&
+
+          now.getDate() === reminderTime.getDate()
+
+          &&
+
+          now.getHours() === reminderTime.getHours()
+
+          &&
+
+          now.getMinutes() === reminderTime.getMinutes()
+
+        ){
+
+          /*
+            Notification chiqarish
+          */
+
+          new Notification("⏰ Vaqt bo'ldi!", {
+
+            /*
+              User yozgan task chiqadi
+            */
+
+            body: reminder.task,
+
+            /*
+              Telefon vibratsiyasi
+            */
+
+            vibrate: [200,100,200]
+
+          });
+
+        }
+
+      });
+
+    }, 1000);
+
+ 
+
+  </script>
+
+  <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js"></script>
+
+<ins class="adsbygoogle"
+     style="display:block"
+     data-ad-client="ca-pub-XXXX"
+     data-ad-slot="XXXX"></ins>
+
+<script>
+(adsbygoogle = window.adsbygoogle || []).push({});
+</script>
+
+</body>
+</html>
